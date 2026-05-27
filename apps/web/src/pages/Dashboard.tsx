@@ -6,6 +6,9 @@ import type { Meal } from "../types/meal";
 export default function Dashboard() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -77,6 +80,60 @@ export default function Dashboard() {
       }}
     >
       <h1>Meal Dashboard</h1>
+      <div style={{ marginBottom: 24, padding: 16, border: "1px solid #eee" }}>
+        <h3>Create User</h3>
+
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ display: "block", marginBottom: 8, padding: 8 }}
+        />
+
+        <input
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ display: "block", marginBottom: 8, padding: 8 }}
+        />
+
+        <button
+          disabled={creating}
+          onClick={async () => {
+            setCreating(true);
+
+            try {
+              const res = await fetch(
+                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ email, password }),
+                },
+              );
+
+              const data = await res.json();
+
+              if (!res.ok) {
+                alert(data.error);
+              } else {
+                alert("User created!");
+                setEmail("");
+                setPassword("");
+              }
+            } catch (err) {
+              alert("Failed to create user");
+            }
+
+            setCreating(false);
+          }}
+        >
+          {creating ? "Creating..." : "Create User"}
+        </button>
+      </div>
 
       {loading && <p>Loading meals...</p>}
 
