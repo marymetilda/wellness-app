@@ -1,12 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 
 export function useAuth() {
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [signingIn, setSigningIn] = useState(false);
   const [signingUp, setSigningUp] = useState(false);
 
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          if (!error && profile) {
+            setUser({
+              ...session.user,
+              role: profile.role
+            });
+          } else {
+            setUser(session.user);
+          }
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+        setUser(null);
+      } finally {
+        setUserLoading(false);
+      }
+    };
+
+    loadUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!error && profile) {
+          setUser({
+            ...session.user,
+            role: profile.role
+          });
+        } else {
+          setUser(session.user);
+        }
+      } else {
+        setUser(null);
+      }
+      setUserLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   async function signIn(email: string, password: string): Promise<void> {
-    setLoading(true);
+    setSigningIn(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -16,10 +75,8 @@ export function useAuth() {
       if (error) {
         throw error;
       }
-
-      window.location.reload();
     } finally {
-      setLoading(false);
+      setSigningIn(false);
     }
   }
 
@@ -56,5 +113,5 @@ export function useAuth() {
     window.location.reload();
   }
 
-  return { signIn, signUp, signOut, loading, signingUp };
+  return { user, userLoading, signingIn, signingUp, signIn, signUp, signOut };
 }
