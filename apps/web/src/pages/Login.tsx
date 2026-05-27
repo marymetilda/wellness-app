@@ -1,62 +1,28 @@
 import { useState } from 'react'
 
-import { supabase } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [signingUp, setSigningUp] = useState(false)
+  const { signIn, signUp, loading, signingUp } = useAuth()
 
   async function handleLogin() {
-    setLoading(true)
     try {
-      const { error } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-
-      if (error) {
-        alert(error.message)
-        return
-      }
-
-      window.location.reload()
-    } catch {
-      alert('Login failed')
-    } finally {
-      setLoading(false)
+      await signIn(email, password)
+    } catch (error) {
+      alert((error as Error).message)
     }
   }
 
   async function handleSignUp() {
-    setSigningUp(true)
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        },
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error);
-      } else {
-        alert("User created! You can now log in.");
-        setEmail("");
-        setPassword("");
-      }
-    } catch {
-      alert("Failed to create user");
-    } finally {
-      setSigningUp(false);
+    const error = await signUp(email, password)
+    if (error) {
+      alert(error)
+    } else {
+      alert("User created! You can now log in.")
+      setEmail("")
+      setPassword("")
     }
   }
 

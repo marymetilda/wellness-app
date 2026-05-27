@@ -1,76 +1,14 @@
-import { useEffect, useState } from "react";
-
-import { supabase } from "../lib/supabase";
-import type { Meal } from "../types/meal";
+import { useMeals } from "../hooks/useMeals";
+import { useAuth } from "../hooks/useAuth";
+import { useMealActions } from "../hooks/useMealActions";
 
 export default function Dashboard() {
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from("meals")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.log(error);
-        setLoading(false);
-        return;
-      }
-
-      setMeals(data || []);
-      setLoading(false);
-    })();
-
-    const channel = supabase
-      .channel("web-meals")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "meals",
-        },
-        () => {
-          console.log("Realtime update received");
-
-          (async () => {
-            setLoading(true);
-
-            const { data, error } = await supabase
-              .from("meals")
-              .select("*")
-              .order("created_at", { ascending: false });
-
-            if (error) {
-              console.log(error);
-              setLoading(false);
-              return;
-            }
-
-            setMeals(data || []);
-            setLoading(false);
-          })();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  const { meals, loading } = useMeals();
+  const { signOut } = useAuth();
+  const { updateStatus, updateAdminComment } = useMealActions();
 
   if (!loading && meals.length === 0) {
     return <p>No meals found</p>;
-  }
-
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    window.location.reload()
   }
 
   return (
@@ -78,11 +16,11 @@ export default function Dashboard() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h1>Meal Dashboard</h1>
         <button
-          className="button button-secondary"
-          onClick={handleLogout}
-        >
-          Logout
-        </button>
+           className="button button-secondary"
+           onClick={signOut}
+         >
+           Logout
+         </button>
       </div>
 
       {loading && <p className="card">Loading meals...</p>}
@@ -139,12 +77,7 @@ export default function Dashboard() {
                 placeholder="Add admin comment..."
                 defaultValue={meal.admin_comment || ""}
                 onBlur={async (e) => {
-                  await supabase
-                    .from("meals")
-                    .update({
-                      admin_comment: e.target.value,
-                    })
-                    .eq("id", meal.id);
+                  await updateAdminComment(meal.id, e.target.value);
                 }}
               />
 
@@ -152,10 +85,7 @@ export default function Dashboard() {
                 <button
                   className="button"
                   onClick={async () => {
-                    await supabase
-                      .from("meals")
-                      .update({ status: "approved" })
-                      .eq("id", meal.id);
+                    await updateStatus(meal.id, "approved");
                   }}
                 >
                   Approve
@@ -164,10 +94,7 @@ export default function Dashboard() {
                 <button
                   className="button button-secondary"
                   onClick={async () => {
-                    await supabase
-                      .from("meals")
-                      .update({ status: "rejected" })
-                      .eq("id", meal.id);
+                    await updateStatus(meal.id, "rejected");
                   }}
                 >
                   Reject

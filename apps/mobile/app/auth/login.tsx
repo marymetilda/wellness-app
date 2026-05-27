@@ -9,24 +9,20 @@ import {
 
 import { router } from 'expo-router'
 
-import { supabase } from '../../src/lib/supabase'
+import { useAuth } from '../../src/hooks/useAuth'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const { signIn, loading } = useAuth()
 
   async function handleLogin() {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
+    try {
+      await signIn(email, password)
+      router.replace('/tabs')
+    } catch (error: any) {
       Alert.alert(error.message)
-      return
     }
-
-    router.replace('/tabs')
   }
 
   return (
@@ -76,11 +72,13 @@ export default function LoginScreen() {
 
       <TouchableOpacity
         onPress={handleLogin}
+        disabled={loading}
         style={{
-          backgroundColor: 'black',
+          backgroundColor: loading ? '#555' : 'black',
           padding: 16,
           borderRadius: 10,
           alignItems: 'center',
+          opacity: loading ? 0.7 : 1,
         }}
       >
         <Text

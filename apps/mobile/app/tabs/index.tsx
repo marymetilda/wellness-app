@@ -9,11 +9,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import { supabase } from "../../src/lib/supabase";
+import { useAnalyzeMeal } from "../../src/hooks/useAnalyzeMeal";
 
 export default function HomeScreen() {
   const [meal, setMeal] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { analyzeMeal, loading } = useAnalyzeMeal();
 
   async function saveMeal() {
     if (!meal.trim()) {
@@ -22,63 +22,11 @@ export default function HomeScreen() {
     }
 
     try {
-      setLoading(true);
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        Alert.alert("User not found");
-        return;
-      }
-
-      // 1. Call Edge Function (Groq)
-      const response = await fetch(
-        "https://ltkohpmktixttzscadzw.supabase.co/functions/v1/analyze-meal",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ meal }),
-        },
-      );
-
-      const ai = await response.json();
-
-      console.log("AI RESPONSE:", ai);
-
-      if (!response.ok || !ai) {
-        Alert.alert(ai?.error || "AI analysis failed");
-        return;
-      }
-
-      // 2. Save to Supabase
-      const { error } = await supabase.from("meals").insert({
-        user_id: user.id,
-        description: meal,
-
-        calories: ai.calories,
-        protein: ai.protein,
-        carbs: ai.carbs,
-        fat: ai.fat,
-
-        health_insight: ai.healthInsight,
-      });
-
-      if (error) {
-        Alert.alert(error.message);
-        return;
-      }
-
+      await analyzeMeal(meal);
       Alert.alert("Meal analyzed successfully 🎉");
-
       setMeal("");
-    } catch (error) {
-      Alert.alert("Something went wrong");
-    } finally {
-      setLoading(false);
+    } catch (error: any) {
+      Alert.alert(error.message || "Something went wrong");
     }
   }
 
