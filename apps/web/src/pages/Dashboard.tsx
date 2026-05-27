@@ -68,9 +68,22 @@ export default function Dashboard() {
     return <p>No meals found</p>;
   }
 
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    window.location.reload()
+  }
+
   return (
     <div className="container">
-      <h1>Meal Dashboard</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1>Meal Dashboard</h1>
+        <button
+          className="button button-secondary"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
 
       {loading && <p className="card">Loading meals...</p>}
 
