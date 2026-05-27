@@ -5,81 +5,62 @@ import { supabase } from '../lib/supabase'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function handleLogin() {
-    const { error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+    setLoading(true)
+    try {
+      const { error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
 
-    if (error) {
-      alert(error.message)
-      return
+      if (error) {
+        alert(error.message)
+        return
+      }
+
+      window.location.reload()
+    } catch {
+      alert('Login failed')
+    } finally {
+      setLoading(false)
     }
-
-    window.location.reload()
   }
 
   return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#fff',
-      }}
-    >
-      <div
-        style={{
-          width: 350,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}
-      >
+    <div className="container">
+      <div className="card">
         <h1>Admin Login</h1>
 
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-          style={{
-            padding: 12,
-            borderRadius: 8,
-            border: '1px solid #ddd',
-          }}
-        />
+        <div className="form-group">
+          <label className="form-label">Email</label>
+          <input
+            className="input"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-          style={{
-            padding: 12,
-            borderRadius: 8,
-            border: '1px solid #ddd',
-          }}
-        />
+        <div className="form-group">
+          <label className="form-label">Password</label>
+          <input
+            className="input"
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
         <button
+          className="button"
           onClick={handleLogin}
-          style={{
-            padding: 14,
-            borderRadius: 8,
-            border: 'none',
-            background: 'black',
-            color: 'white',
-            cursor: 'pointer',
-          }}
+          disabled={loading}
         >
-          Login
+          {loading ? 'Logging in...' : 'Login'}
         </button>
       </div>
     </div>
