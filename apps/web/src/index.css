@@ -212,3 +212,152 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Meal Card Styles */
+.meal-card {
+  background: var(--bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.meal-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.meal-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.meal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 8px;
+}
+
+.meal-nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.meal-nutrition-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: var(--code-bg);
+  border-radius: 8px;
+}
+
+.meal-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.meal-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.meal-insight,
+.meal-user {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: var(--accent-bg);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.meal-insight-text,
+.meal-user-text {
+  font-size: 14px;
+  color: var(--text-h);
+  line-height: 1.5;
+}
+
+.meal-insight-label,
+.meal-user-label {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.meal-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--code-bg);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.meal-status-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.meal-status-value {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.meal-status-approved {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.meal-status-rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.meal-status-pending {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.meal-admin-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+.meal-admin-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (max-width: 1024px) {
+  .meal-card {
+    padding: 16px;
+  }
+
+  .meal-nutrition-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .meal-nutrition-item {
+    padding: 10px;
+  }
+
+  .meal-title {
+    font-size: 18px;
+  }
+}

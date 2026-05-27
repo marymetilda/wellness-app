@@ -51,83 +51,99 @@ export default function Dashboard() {
              }}
            >
              {meals
-               .filter(meal => {
-                 if (!user) return false;
-                 if (user.role === 'admin') return true;
-                 return meal.user_id === user.id;
-               })
-               .map((meal) => (
-                 <div
-                   key={meal.id}
-                   style={{
-                     border: "1px solid var(--border)",
-                     borderRadius: 8,
-                     padding: 16,
-                     marginBottom: 16,
-                   }}
-                 >
-                   <h3>{meal.description}</h3>
+                .filter(meal => {
+                  if (!user) return false;
+                  if (user.role === 'admin') return true;
+                  return meal.user_id === user.id;
+                })
+                .map((meal) => (
+                  <div
+                    key={meal.id}
+                    className="meal-card"
+                  >
+                    <div className="meal-header">
+                      <h3 className="meal-title">{meal.description}</h3>
+                    </div>
 
-                   <p>Calories: {meal.calories}</p>
-                   <p>Protein: {meal.protein}g</p>
-                   <p>Carbs: {meal.carbs}g</p>
-                   <p>Fat: {meal.fat}g</p>
+                    <div className="meal-nutrition-grid">
+                      <div className="meal-nutrition-item">
+                        <span className="meal-label">Calories</span>
+                        <span className="meal-value">{meal.calories} kcal</span>
+                      </div>
+                      <div className="meal-nutrition-item">
+                        <span className="meal-label">Protein</span>
+                        <span className="meal-value">{meal.protein}g</span>
+                      </div>
+                      <div className="meal-nutrition-item">
+                        <span className="meal-label">Carbs</span>
+                        <span className="meal-value">{meal.carbs}g</span>
+                      </div>
+                      <div className="meal-nutrition-item">
+                        <span className="meal-label">Fat</span>
+                        <span className="meal-value">{meal.fat}g</span>
+                      </div>
+                    </div>
 
-                   <p>🧠 Insight: {meal.health_insight}</p>
+                    <div className="meal-insight">
+                      <span className="meal-insight-label">🧠 Insight:</span>
+                      <span className="meal-insight-text">{meal.health_insight}</span>
+                    </div>
 
-                   <p>👤 User: {meal.user_id}</p>
+                    <div className="meal-user">
+                      <span className="meal-user-label">👤 User:</span>
+                      <span className="meal-user-text">{meal.user_id}</span>
+                    </div>
 
-                   {/* STATUS */}
-                   <p>
-                     Status:{" "}
-                     <b
-                       style={{
-                         color:
-                           meal.status === "approved"
-                             ? "green"
-                             : meal.status === "rejected"
-                               ? "red"
-                               : "orange",
-                       }}
-                     >
-                       {meal.status || "pending"}
-                     </b>
-                   </p>
+                    {/* STATUS */}
+                    <div className="meal-status">
+                      <span className="meal-status-label">Status:</span>
+                      <span
+                        className={`meal-status-value ${
+                          meal.status === "approved"
+                            ? "meal-status-approved"
+                            : meal.status === "rejected"
+                              ? "meal-status-rejected"
+                              : "meal-status-pending"
+                        }`}
+                      >
+                        {meal.status || "pending"}
+                      </span>
+                    </div>
 
-                   {user && user.role === 'admin' && (
-                     <>
-                       <textarea
-                         className="input"
-                         placeholder="Add admin comment..."
-                         defaultValue={meal.admin_comment || ""}
-                         onBlur={async (e) => {
-                           await updateAdminComment(meal.id, e.target.value);
-                         }}
-                       />
+                    {user && user.role === 'admin' && (
+                      <div className="meal-admin-section">
+                        <textarea
+                          className="input"
+                          placeholder="Add admin comment..."
+                          defaultValue={meal.admin_comment || ""}
+                          onBlur={async (e) => {
+                            await updateAdminComment(meal.id, e.target.value);
+                          }}
+                        />
 
-                       <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                         <button
-                           className="button"
-                           onClick={async () => {
-                             await updateStatus(meal.id, "approved");
-                           }}
-                         >
-                           Approve
-                         </button>
+                        <div className="meal-admin-actions">
+                          <button
+                            className="button"
+                            onClick={async () => {
+                              await updateStatus(meal.id, "approved");
+                            }}
+                          >
+                            Approve
+                          </button>
 
-                         <button
-                           className="button button-secondary"
-                           onClick={async () => {
-                             await updateStatus(meal.id, "rejected");
-                           }}
-                         >
-                           Reject
-                         </button>
-                       </div>
-                     </>
-                   )}
-                 </div>
-               ))}
+                          <button
+                            className="button button-secondary"
+                            onClick={async () => {
+                              await updateStatus(meal.id, "rejected");
+                            }}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
            </div>
          </div>
        )}
