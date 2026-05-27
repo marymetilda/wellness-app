@@ -88,6 +88,7 @@ export default function HomeScreen() {
         flex: 1,
         backgroundColor: "#fff",
         padding: 20,
+        paddingTop: 60,
       }}
     >
       <Text

@@ -78,6 +78,7 @@ export default function HistoryScreen() {
         flex: 1,
         backgroundColor: "#fff",
         padding: 20,
+        paddingTop: 60,
       }}
     >
       <Text
