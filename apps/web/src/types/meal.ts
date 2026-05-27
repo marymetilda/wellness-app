@@ -9,4 +9,5 @@ export interface Meal {
   status: string
   user_id: string
   created_at?: string
+  admin_comment?: string
 }

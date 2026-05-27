@@ -7,27 +7,19 @@ export default function HistoryScreen() {
   const [meals, setMeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMeals();
-  }, []);
-
   async function fetchMeals() {
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) {
-        return;
-      }
+      if (!user) return;
 
       const { data, error } = await supabase
         .from("meals")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", {
-          ascending: false,
-        });
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.log(error);
@@ -41,6 +33,30 @@ export default function HistoryScreen() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchMeals();
+
+    const channel = supabase
+      .channel("mobile-meals")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "meals",
+        },
+        (payload) => {
+          console.log("Realtime update:", payload);
+          fetchMeals();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -94,6 +110,7 @@ export default function HistoryScreen() {
               backgroundColor: "#fafafa",
             }}
           >
+            {/* Meal Title */}
             <Text
               style={{
                 fontSize: 18,
@@ -104,6 +121,7 @@ export default function HistoryScreen() {
               {item.description}
             </Text>
 
+            {/* Macros */}
             <View style={{ gap: 4 }}>
               <Text>🔥 Calories: {item.calories}</Text>
               <Text>💪 Protein: {item.protein}g</Text>
@@ -111,6 +129,7 @@ export default function HistoryScreen() {
               <Text>🥑 Fat: {item.fat}g</Text>
             </View>
 
+            {/* AI Insight */}
             <View
               style={{
                 marginTop: 12,
@@ -125,7 +144,47 @@ export default function HistoryScreen() {
                 🧠 {item.health_insight}
               </Text>
             </View>
-            <Text style={{ marginTop: 8, color: "#999", fontSize: 12 }}>
+
+            {/* STATUS (NEW) */}
+            <Text
+              style={{
+                marginTop: 10,
+                fontWeight: "600",
+                color:
+                  item.status === "approved"
+                    ? "green"
+                    : item.status === "rejected"
+                    ? "red"
+                    : "#f59e0b",
+              }}
+            >
+              Status: {item.status || "pending"}
+            </Text>
+
+            {/* ADMIN COMMENT (NEW) */}
+            {item.admin_comment ? (
+              <View
+                style={{
+                  marginTop: 10,
+                  padding: 10,
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={{ color: "#444" }}>
+                  📝 Admin: {item.admin_comment}
+                </Text>
+              </View>
+            ) : null}
+
+            {/* Timestamp */}
+            <Text
+              style={{
+                marginTop: 8,
+                color: "#999",
+                fontSize: 12,
+              }}
+            >
               {new Date(item.created_at).toLocaleString()}
             </Text>
           </View>
