@@ -6,9 +6,6 @@ import type { Meal } from "../types/meal";
 export default function Dashboard() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -74,67 +71,6 @@ export default function Dashboard() {
   return (
     <div className="container">
       <h1>Meal Dashboard</h1>
-      <div className="card">
-        <h3>Create User</h3>
-
-        <div className="form-group">
-          <label className="form-label">Email</label>
-          <input
-            className="input"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Password</label>
-          <input
-            className="input"
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <button
-          className="button"
-          onClick={async () => {
-            setCreating(true);
-
-            try {
-              const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ email, password }),
-                },
-              );
-
-              const data = await res.json();
-
-              if (!res.ok) {
-                alert(data.error);
-              } else {
-                alert("User created!");
-                setEmail("");
-                setPassword("");
-              }
-            } catch {
-              alert("Failed to create user");
-            }
-
-            setCreating(false);
-          }}
-          disabled={creating}
-        >
-          {creating ? "Creating..." : "Create User"}
-        </button>
-      </div>
 
       {loading && <p className="card">Loading meals...</p>}
 

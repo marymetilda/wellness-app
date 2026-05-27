@@ -6,6 +6,7 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [signingUp, setSigningUp] = useState(false)
 
   async function handleLogin() {
     setLoading(true)
@@ -26,6 +27,36 @@ export default function Login() {
       alert('Login failed')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleSignUp() {
+    setSigningUp(true)
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error);
+      } else {
+        alert("User created! You can now log in.");
+        setEmail("");
+        setPassword("");
+      }
+    } catch {
+      alert("Failed to create user");
+    } finally {
+      setSigningUp(false);
     }
   }
 
@@ -61,6 +92,15 @@ export default function Login() {
           disabled={loading}
         >
           {loading ? 'Logging in...' : 'Login'}
+        </button>
+
+        <button
+          className="button button-secondary"
+          onClick={handleSignUp}
+          disabled={signingUp}
+          style={{ marginTop: 12 }}
+        >
+          {signingUp ? 'Creating...' : 'Sign Up'}
         </button>
       </div>
     </div>
