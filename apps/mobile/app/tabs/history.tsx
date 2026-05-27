@@ -1,8 +1,10 @@
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
 import { useMeals } from "../../src/hooks/useMeals";
+import { useAuth } from "../../src/hooks/useAuth";
 
 export default function HistoryScreen() {
   const { meals, loading } = useMeals();
+  const { signOut } = useAuth();
 
   if (loading) {
     return (
@@ -27,15 +29,26 @@ export default function HistoryScreen() {
         paddingTop: 60,
       }}
     >
-      <Text
+      <View
         style={{
-          fontSize: 30,
-          fontWeight: "800",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: 20,
         }}
       >
-        Your Meals
-      </Text>
+        <Text
+          style={{
+            fontSize: 30,
+            fontWeight: "800",
+          }}
+        >
+          Your Meals
+        </Text>
+        <TouchableOpacity onPress={signOut}>
+          <Text style={{ color: "red", fontWeight: "600" }}>Logout</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={meals}

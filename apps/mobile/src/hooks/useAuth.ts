@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { router } from "expo-router";
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
@@ -20,5 +21,10 @@ export function useAuth() {
     }
   }
 
-  return { signIn, loading };
+  async function signOut() {
+    await supabase.auth.signOut();
+    router.replace("/auth");
+  }
+
+  return { signIn, signOut, loading };
 }

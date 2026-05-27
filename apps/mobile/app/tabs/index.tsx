@@ -10,10 +10,12 @@ import {
 } from "react-native";
 
 import { useAnalyzeMeal } from "../../src/hooks/useAnalyzeMeal";
+import { useAuth } from "../../src/hooks/useAuth";
 
 export default function HomeScreen() {
   const [meal, setMeal] = useState("");
   const { analyzeMeal, loading } = useAnalyzeMeal();
+  const { signOut } = useAuth();
 
   async function saveMeal() {
     if (!meal.trim()) {
@@ -39,15 +41,26 @@ export default function HomeScreen() {
         paddingTop: 60,
       }}
     >
-      <Text
+      <View
         style={{
-          fontSize: 30,
-          fontWeight: "700",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: 20,
         }}
       >
-        Wellness Tracker
-      </Text>
+        <Text
+          style={{
+            fontSize: 30,
+            fontWeight: "700",
+          }}
+        >
+          Wellness Tracker
+        </Text>
+        <TouchableOpacity onPress={signOut}>
+          <Text style={{ color: "red", fontWeight: "600" }}>Logout</Text>
+        </TouchableOpacity>
+      </View>
 
       <Text
         style={{
